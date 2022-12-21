@@ -33,6 +33,10 @@ Homepage = "https://github.com/zack-wilson/scrapy-selenium"
 requires = ["pdm-pep517>=1.0.0"]
 build-backend = "pdm.pep517.api"
 
-# [tool.pytest.ini_options]
-# adopts = "--cov=scrapy_selenium --cov-report=term-missing"
-# testpaths = ["tests"]
+[tool.pytest.ini_options]
+addopts = """
+--cov-branch
+--cov=scrapy_selenium 
+--cov-report=term-missing
+"""
+testpaths = ["tests"]
