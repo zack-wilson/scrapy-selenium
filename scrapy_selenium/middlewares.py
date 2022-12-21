@@ -16,11 +16,12 @@ class SeleniumMiddleware:
 
     def __init__(
         self,
-        driver_name: str = defaults.SELENIUM_DRIVER_NAME,
-        driver_executable_path: str | None = defaults.SELENIUM_BROWSER_EXECUTABLE_PATH,
-        browser_executable_path: str | None = defaults.SELENIUM_BROWSER_EXECUTABLE_PATH,
-        command_executor: str | None = defaults.SELENIUM_COMMAND_EXECUTOR,
-        driver_arguments: list[str | None] = [],
+        driver_name,
+        driver_executable_path,
+        grid_url,
+        command_executor,
+        driver_arguments,
+        browser_executable_path,
     ):
         """Initialize the selenium webdriver
 
@@ -30,6 +31,8 @@ class SeleniumMiddleware:
             The selenium ``WebDriver`` to use
         driver_executable_path: str
             The path of the executable binary of the driver
+        grid_url: str
+            The selenium grid url. example: http://127.0.0.1:4444/wd/hub
         driver_arguments: list
             A list of arguments to initialize the driver
         browser_executable_path: str
@@ -40,7 +43,11 @@ class SeleniumMiddleware:
 
         webdriver_base_path = f"selenium.webdriver.{driver_name}"
 
-        driver_klass_module = import_module(f"{webdriver_base_path}.webdriver")
+        if grid_url:
+            driver_klass_module = import_module(f"selenium.webdriver.remote.webdriver")
+        else:
+            driver_klass_module = import_module(f"{webdriver_base_path}.webdriver")
+
         driver_klass = getattr(driver_klass_module, "WebDriver")
 
         driver_options_module = import_module(f"{webdriver_base_path}.options")
@@ -53,10 +60,12 @@ class SeleniumMiddleware:
         for argument in driver_arguments:
             driver_options.add_argument(argument)
 
-        driver_kwargs = {
-            "executable_path": driver_executable_path,
-            f"{driver_name}_options": driver_options,
-        }
+        driver_kwargs = {"options": driver_options}
+
+        if grid_url:
+            driver_kwargs.update({"command_executor": grid_url})
+        else:
+            driver_kwargs.update({"executable_path": driver_executable_path})
 
         # locally installed driver
         if driver_executable_path is not None:
@@ -86,17 +95,18 @@ class SeleniumMiddleware:
         command_executor = crawler.settings.get("SELENIUM_COMMAND_EXECUTOR")
         driver_arguments = crawler.settings.get("SELENIUM_DRIVER_ARGUMENTS")
 
-        if driver_name is None:
-            raise NotConfigured("SELENIUM_DRIVER_NAME must be set")
+        grid_url = crawler.settings.get("SELENIUM_REMOTE_URL", None)
 
-        if driver_executable_path is None and command_executor is None:
+        if not driver_name:
+            raise NotConfigured("SELENIUM_DRIVER_NAME must be set")
+        if not (driver_executable_path or grid_url):
             raise NotConfigured(
-                "Either SELENIUM_DRIVER_EXECUTABLE_PATH "
-                "or SELENIUM_COMMAND_EXECUTOR must be set"
+                "SELENIUM_DRIVER_EXECUTABLE_PATH or SELENIUM_REMOTE_URL  must set one"
             )
 
         middleware = cls(
             driver_name=driver_name,
+            grid_url=grid_url,
             driver_executable_path=driver_executable_path,
             browser_executable_path=browser_executable_path,
             command_executor=command_executor,
