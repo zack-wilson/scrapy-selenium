@@ -22,7 +22,7 @@ name = "scrapy-selenium"
 version = "0.0.8"
 description = "Scrapy with selenium"
 authors = [{ name = "Zachary Wilson", email = "wilsonze@gmail.com" }]
-requires-python = ">=3.11"
+requires-python = ">=3.10"
 readme = "README.md"
 license = { text = "MIT" }
 dependencies = ["scrapy>=1.0.0", "selenium>=3.9.0"]
