@@ -40,9 +40,6 @@ class SeleniumMiddleware:
         command_executor: str
             Selenium remote server endpoint
         """
-
-        if driver_arguments is None:
-            driver_arguments = []
         webdriver_base_path = f"selenium.webdriver.{driver_name.lower()}"
 
         if grid_url:
@@ -52,36 +49,41 @@ class SeleniumMiddleware:
 
         driver_klass = getattr(driver_klass_module, "WebDriver")
 
+        driver_service_module = import_module(f"{webdriver_base_path}.service")
+        driver_service_klass = getattr(driver_service_module, "Service")
+
         driver_options_module = import_module(f"{webdriver_base_path}.options")
         driver_options_klass = getattr(driver_options_module, "Options")
 
+        driver_service = driver_service_klass()
         driver_options = driver_options_klass()
 
         if browser_executable_path:
             driver_options.binary_location = browser_executable_path
-        for argument in driver_arguments:
-            driver_options.add_argument(argument)
 
-        driver_kwargs = {"options": driver_options}
+        if driver_arguments:
+            for argument in driver_arguments:
+                driver_options.add_argument(argument)
+
+        driver_kwargs = {"service": driver_service, "options": driver_options}
 
         if grid_url:
             driver_kwargs["command_executor"] = grid_url
         else:
-            driver_kwargs["executable_path"] = driver_executable_path
+            driver_kwargs["service"] = driver_service_klass(
+                executable_path=driver_executable_path
+            )
 
-        # locally installed driver
-        if driver_executable_path is not None:
-            driver_kwargs = {
-                "executable_path": driver_executable_path,
-                "options": driver_options,
-            }
+        if not grid_url:
             self.driver = driver_klass(**driver_kwargs)
-        elif command_executor is not None:
+        else:
             from selenium import webdriver
 
             capabilities = driver_options.to_capabilities()
             self.driver = webdriver.Remote(
-                command_executor=command_executor, desired_capabilities=capabilities
+                command_executor=grid_url,
+                desired_capabilities=capabilities,
+                options=driver_options,
             )
 
     @classmethod

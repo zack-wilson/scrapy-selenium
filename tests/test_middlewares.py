@@ -49,13 +49,16 @@ class SeleniumMiddlewareTestCase(TestCase):
         mw = SeleniumMiddleware.from_crawler(crawler)
         mw.driver.quit()
 
-    # def test_from_crawler_method_via_browser_executable_path(self):
-    #     self.settings.update({"SELENIUM_DRIVER_NAME": "firefox"})
-    #     self.settings.update({"SELENIUM_BROWSER_EXECUTABLE_PATH": which("firefox")})
-    #     crawler = get_crawler(Spider, self.settings)
-    #     mw = SeleniumMiddleware.from_crawler(crawler)
-    #     self.assertEqual(which("firefox"), mw.driver.command_executor._start_cmd)
-    #     mw.driver.close()
+    def test_from_crawler_method_via_browser_executable_path(self):
+        self.settings.update({"SELENIUM_DRIVER_NAME": "firefox"})
+        self.settings.update({"SELENIUM_BROWSER_EXECUTABLE_PATH": which("firefox")})
+        crawler = get_crawler(Spider, self.settings)
+        mw = SeleniumMiddleware.from_crawler(crawler)
+        self.assertEqual(
+            mw.driver.command_executor.browser_name,
+            self.settings["SELENIUM_DRIVER_NAME"],
+        )
+        mw.driver.close()
 
     def test_from_crawler_method_should_initialize_the_driver(self):
         """Test that the ``from_crawler`` method should initialize the selenium driver"""
