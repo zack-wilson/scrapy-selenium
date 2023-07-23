@@ -1,0 +1,27 @@
+{
+    "dockerFile": "./Dockerfile",
+    "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+    "remoteUser": "scrapy",
+    "postStartCommand": "pdm install --dev",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.black-formatter",
+                "EditorConfig.EditorConfig",
+                "tamasfe.even-better-toml",
+                "VisualStudioExptTeam.vscodeintellicode",
+                "VisualStudioExptTeam.intellicode-api-usage-examples",
+                "VisualStudioExptTeam.vscodeintellicode-completions",
+                "VisualStudioExptTeam.vscodeintellicode-insiders",
+                "ms-python.isort",
+                "ms-vscode.makefile-tools",
+                "bierner.markdown-mermaid",
+                "DavidAnson.vscode-markdownlint",
+                "christian-kohler.path-intellisense",
+                "sourcery.sourcery",
+                "redhat.vscode-yaml",
+                "ms-azuretools.vscode-docker"
+            ]
+        }
+    }
+}

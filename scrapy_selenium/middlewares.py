@@ -16,12 +16,12 @@ class SeleniumMiddleware:
 
     def __init__(
         self,
-        driver_name,
-        driver_executable_path,
-        grid_url,
-        command_executor,
-        driver_arguments,
-        browser_executable_path,
+        driver_name: str,
+        driver_executable_path: str,
+        grid_url: str | None = None,
+        command_executor: str | None = None,
+        driver_arguments: list[str] | None = None,
+        browser_executable_path: str | None = None,
     ):
         """Initialize the selenium webdriver
 
@@ -41,10 +41,12 @@ class SeleniumMiddleware:
             Selenium remote server endpoint
         """
 
-        webdriver_base_path = f"selenium.webdriver.{driver_name}"
+        if driver_arguments is None:
+            driver_arguments = []
+        webdriver_base_path = f"selenium.webdriver.{driver_name.lower()}"
 
         if grid_url:
-            driver_klass_module = import_module(f"selenium.webdriver.remote.webdriver")
+            driver_klass_module = import_module("selenium.webdriver.remote.webdriver")
         else:
             driver_klass_module = import_module(f"{webdriver_base_path}.webdriver")
 
@@ -63,18 +65,17 @@ class SeleniumMiddleware:
         driver_kwargs = {"options": driver_options}
 
         if grid_url:
-            driver_kwargs.update({"command_executor": grid_url})
+            driver_kwargs["command_executor"] = grid_url
         else:
-            driver_kwargs.update({"executable_path": driver_executable_path})
+            driver_kwargs["executable_path"] = driver_executable_path
 
         # locally installed driver
         if driver_executable_path is not None:
             driver_kwargs = {
                 "executable_path": driver_executable_path,
-                f"options": driver_options,
+                "options": driver_options,
             }
             self.driver = driver_klass(**driver_kwargs)
-        # remote driver
         elif command_executor is not None:
             from selenium import webdriver
 

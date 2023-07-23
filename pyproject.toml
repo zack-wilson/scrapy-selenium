@@ -1,4 +1,21 @@
+[project]
+name = "scrapy-selenium"
+dynamic = ["version"]
+description = "Scrapy with selenium"
+authors = [{ name = "Zachary Wilson", email = "wilsonze@gmail.com" }]
+requires-python = ">=3.10"
+readme = "README.md"
+license = { text = "MIT" }
+dependencies = ["scrapy>=1.0.0", "selenium>=3.9.0"]
+[project.urls]
+Homepage = "https://github.com/zack-wilson/scrapy-selenium"
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
 [tool.pdm]
+version = { source = "scm" }
 [tool.pdm.dev-dependencies]
 lint = [
     "mypy>=0.991",
@@ -11,32 +28,24 @@ test = [
     "pytest>=3.4.0",
     "pytest-cov>=2.4.0",
     "pytest-asyncio>=0.12.0",
-    "faker>=15.3.4",
-    "hypothesis>=6.61.0",
+    "pytest-xdist>=3.3.1",
+]
+dev = [
+    "ipykernel>=6.24.0",
 ]
 [tool.pdm.scripts]
 test = "pytest -v"
 
-[project]
-name = "scrapy-selenium"
-version = "0.0.8"
-description = "Scrapy with selenium"
-authors = [{ name = "Zachary Wilson", email = "wilsonze@gmail.com" }]
-requires-python = ">=3.10"
-readme = "README.md"
-license = { text = "MIT" }
-dependencies = ["scrapy>=1.0.0", "selenium>=3.9.0"]
-[project.urls]
-Homepage = "https://github.com/zack-wilson/scrapy-selenium"
-
-[build-system]
-requires = ["pdm-pep517>=1.0.0"]
-build-backend = "pdm.pep517.api"
-
 [tool.pytest.ini_options]
 addopts = """
+-n=4
+-ra
+--junit-xml=cover/junit.xml
+--durations=0
 --cov-branch
---cov=scrapy_selenium 
+--cov=scrapy_selenium
 --cov-report=term-missing
+--cov-report=xml:cover/coverage.xml
+--cov-report=html:cover/html
 """
 testpaths = ["tests"]
